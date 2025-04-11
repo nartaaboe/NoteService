@@ -46,7 +46,8 @@ Request:
 ```{
   "title": "Note title",
   "content": "Note content"
-}```
+}
+```
 
 Response:
 

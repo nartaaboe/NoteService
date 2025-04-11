@@ -1,0 +1,40 @@
+@startuml
+
+actor User
+participant "🌐 API Handler" as Handler
+participant "🧠 NoteService\n(Business Logic)" as NoteService
+participant "🗄️ NoteRepository" as NoteRepo
+participant "📚 NotebookService" as NotebookService
+participant "🏷️ TagService" as TagService
+participant "⏰ ReminderService" as ReminderService
+database "💾 Notes Table" as NotesDB
+database "📂 Notebooks Table" as NotebooksDB
+database "🏷 Tags Table" as TagsDB
+database "⏰ Reminders Table" as RemindersDB
+
+== Create Note with Tags, Reminder, Notebook ==
+
+User -> Handler : POST /notes\n(title, content, tags[], notebookId, remindAt)
+Handler -> NoteService : CreateNote(request)
+
+NoteService -> NoteRepo : SaveNote(note)
+NoteRepo -> NotesDB : INSERT INTO notes (...)
+NotesDB --> NoteRepo : return noteId
+NoteRepo --> NoteService : return NoteCreated
+
+NoteService -> NotebookService : AttachNoteToNotebook(noteId, notebookId)
+NotebookService -> NotebooksDB : UPDATE notebooks SET ...
+NotebooksDB --> NotebookService : OK
+
+NoteService -> TagService : AssignTagsToNote(noteId, tags[])
+TagService -> TagsDB : INSERT tags IF NOT EXISTS\n+ LINK to note
+TagsDB --> TagService : OK
+
+NoteService -> ReminderService : SetReminder(noteId, remindAt)
+ReminderService -> RemindersDB : INSERT INTO reminders (...)
+RemindersDB --> ReminderService : OK
+
+NoteService --> Handler : NoteCreatedResponse
+Handler --> User : 201 Created + noteId
+
+@enduml

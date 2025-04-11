@@ -43,7 +43,8 @@ Creates a new note. The request body must include the note details.
 
 Request:
 
-```{
+```
+{
   "title": "Note title",
   "content": "Note content"
 }
